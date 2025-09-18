@@ -9,27 +9,23 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      -
+        name: Checkout
+        uses: actions/checkout@v3
         with:
-          go-version: '1.25'
-
-      - name: Build binaries
-        run: |
-          mkdir -p dist
-          GOOS=linux GOARCH=amd64 go build -o dist/myapp-linux-amd64
-          GOOS=darwin GOARCH=amd64 go build -o dist/myapp-darwin-amd64
-          GOOS=windows GOARCH=amd64 go build -o dist/myapp-windows-amd64.exe
-
-      - name: Create GitHub Release
-        id: release
-        uses: ncipollo/release-action@v1
+          fetch-depth: 0
+      -
+        name: Set up Go
+        uses: actions/setup-go@v3
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4
         with:
-          tag: ${{ github.ref_name }}
-          files: dist/*
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB_TOKEN }}
